@@ -19,6 +19,12 @@ The `SpeedControllerUDP.py` and `SlowedSpeedControllerUDP.py` are similar and wo
 4) **Speed Calculation**: It uses the `calculate_speed_fraction()` function to map the distance in meters to a corresponding speed fraction (from 0.0 for 0% speed to 1.0 for 100% speed).
 5) **Robot Command**: It sends the calculated speed fraction to the robot's `speed_slider_fraction` register via RTDE. All documentation about internal robot configuration is available [here](https://docs.universal-robots.com/tutorials/communication-protocol-tutorials/rtde-guide.html).
 
+<p align="center">
+  <img src="assets/pipe_Controller.png" alt="Functional Flow Pipeline"/>
+  <br>
+  <i>Fig. 1 - Functional Flow of the Controller submodule</i>
+</p>
+
 The difference between the two scripts is their behavior in changing the robot speed:
 - In the `SpeedControllerUDP.py`, speed adjustments are immediate and directly reflect the most recently received distance. This provides a highly reactive system, but also highly sensitive to false estimations.
 - In the `SlowedSpeedControllerUDP.py`, a counter-based filtering logic is implemented to prevent jerky movements caused by noisy estimation data or single-frame detection outliers. If the system receives a distance that requires a slower speed, it must receive this command for `MIN_TIMES_LOW` consecutive cycles before the speed is actually reduced. This prevents sudden, unnecessary stops if a person briefly walks by far away. If the system receives a distance that allows for a faster speed, it must receive this command for `MIN_TIMES_HIGH` consecutive cycles. This ensures the robot only accelerates when the path is confirmed to be clear for a sustained period. This controller results in a much smoother and more predictable robot motion, prioritizing safety over instant reactivity. A good bilancement consists of lower `MIN_TIMES_LOW` and higher `MIN_TIMES_HIGH`. Those parameters are fully customizable.
