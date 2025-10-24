@@ -1,0 +1,11 @@
+.idea
+.vscode
+dist
+build
+target
+UrRtde.egg-info
+venv
+*pyc
+
+dtazzioli
+test*/

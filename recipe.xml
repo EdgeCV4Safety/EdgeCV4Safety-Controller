@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<rtde_config>
+
+    <recipe key="in">
+        <field name="speed_slider_mask" type="UINT32"/>
+        <field name="speed_slider_fraction" type="DOUBLE"/>
+    </recipe>
+
+    <recipe key="out">
+        <field name="actual_TCP_speed" type="VECTOR6D"/> 
+        <field name="target_TCP_speed" type="VECTOR6D"/>
+    </recipe>
+
+</rtde_config>
+
