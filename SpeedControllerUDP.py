@@ -23,12 +23,17 @@ ROBOT_PORT = 30004 # Must correspond to the robot RTDE port (default 30004)
 CONFIG_XML = './recipe.xml' # Make sure this is the correct path to recipe.xml
 RTDE_FREQUENCY = 100 # Hz
 
-# --- Speed thresholds ---
-VELOCITY_THRESHOLD_0_5M      = 0.0
-VELOCITY_THRESHOLD_1M        = 0.3
-VELOCITY_2M_THRESHOLD        = 0.7
-VELOCITY_3M_THRESHOLD        = 1.0
-VELOCITY_OVER_3M_THRESHOLD   = 1.0
+# --- Speed thresholds ans Tiers ---
+VELOCITY_ZONE_1         = 0.0 # % [0,1]
+VELOCITY_ZONE_2         = 0.3 # % [0,1]
+VELOCITY_ZONE_3         = 0.7 # % [0,1]
+VELOCITY_ZONE_4         = 1.0 # % [0,1]
+VELOCITY_ZONE_5         = 1.0 # % [0,1]
+
+ZONE_1_END_DISTANCE   = 1.0 # m
+ZONE_2_END_DISTANCE   = 2.0 # m
+ZONE_3_END_DISTANCE   = 3.0 # m
+ZONE_4_END_DISTANCE   = 4.0 # m
 
 # --- Logging configuration ---
 logging.basicConfig(
@@ -45,17 +50,17 @@ def calculate_speed_fraction(distance: float) -> float:
     Calculate the speed fraction based on the distance.
     """
     if distance < 0:
-        return VELOCITY_OVER_3M_THRESHOLD
-    elif distance < 1:
-        return VELOCITY_THRESHOLD_0_5M
-    elif 1 <= distance < 2:
-        return VELOCITY_THRESHOLD_1M
-    elif 2 <= distance < 3:
-        return VELOCITY_2M_THRESHOLD
-    elif 3 <= distance < 4:
-        return VELOCITY_3M_THRESHOLD
+        return VELOCITY_ZONE_5
+    elif distance < ZONE_1_END_DISTANCE:
+        return VELOCITY_ZONE_1
+    elif ZONE_1_END_DISTANCE <= distance < ZONE_2_END_DISTANCE:
+        return VELOCITY_ZONE_2
+    elif ZONE_2_END_DISTANCE <= distance < ZONE_3_END_DISTANCE:
+        return VELOCITY_ZONE_3
+    elif ZONE_3_END_DISTANCE <= distance < ZONE_4_END_DISTANCE:
+        return VELOCITY_ZONE_4
     else:
-        return VELOCITY_OVER_3M_THRESHOLD
+        return VELOCITY_ZONE_5
 
 def run_rtde_controller(stop_event: threading.Event):
     """
@@ -114,7 +119,7 @@ def run_rtde_controller(stop_event: threading.Event):
                 logging.info("[RTDE_TX] 'speed_slider_mask' not found in input recipe. Unable to control speed slider.")
 
             if hasattr(input_data, 'speed_slider_fraction'):
-                input_data.speed_slider_fraction = VELOCITY_OVER_3M_THRESHOLD # Initialize to 100%
+                input_data.speed_slider_fraction = VELOCITY_ZONE_5 # Initialize to 100%
             else:
                 logging.info("[RTDE_TX] 'speed_slider_fraction' not found in input recipe.")
 
